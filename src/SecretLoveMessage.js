@@ -1,104 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { Heart, Lock } from 'lucide-react';
-
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
-
-const slideIn = keyframes`
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-`;
-
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-`;
-
-const zoomInOut = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(20); }
-  100% { transform: scale(1); }
-`;
-
-const firework = keyframes`
-  0% { transform: translate(var(--x), var(--initialY)); width: 0px; opacity: 1; }
-  50% { width: 5px; opacity: 1; }
-  100% { width: 0px; opacity: 0; transform: translate(var(--x), var(--finalY)); }
-`;
-
-const Container = styled.div`
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #fff;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-`;
-
-const Button = styled.button`
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background-color: ${props => props.primary ? '#ff4081' : '#3f51b5'};
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const RevealContainer = styled.div`
-  animation: ${fadeIn} 1s ease-out;
-`;
-
-const SecretMessage = styled.p`
-  font-size: 2rem;
-  color: #ff4081;
-  margin: 1rem 0;
-  animation: ${slideIn} 1s ease-out, ${pulse} 2s infinite;
-`;
-
-const KissingEmoji = styled.span`
-  font-size: 5rem;
-  animation: ${zoomInOut} 4s infinite;
-`;
-
-const FireworkContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-`;
-
-const FireworkSpan = styled.span`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border: 2px solid #ff4081;
-  transform: translate(0, 0);
-  animation: ${firework} 1.5s ease-out infinite;
-`;
-
-const HeartContainer = styled.div`
-  font-size: 24px;
-  line-height: 1;
-  text-align: center;
-`;
+import { Heart } from 'lucide-react';
+import './SecretLoveMessage.css';  // We'll create this file next
 
 const words = ["Hello", "Hi", "Hey", "Greetings", "Salutations"];
 const adjectives = ["amazing", "wonderful", "fantastic", "incredible", "awesome"];
@@ -116,10 +18,6 @@ const SecretLoveMessage = () => {
   const [message, setMessage] = useState('');
   const [secret, setSecret] = useState('');
   const [isRevealed, setIsRevealed] = useState(false);
-  const [countdown, setCountdown] = useState(null);
-  const [lockCode, setLockCode] = useState('');
-  const [isLocked, setIsLocked] = useState(true);
-  const [showFireworks, setShowFireworks] = useState(false);
   const [heartEmojis, setHeartEmojis] = useState([]);
 
   useEffect(() => {
@@ -127,39 +25,19 @@ const SecretLoveMessage = () => {
   }, []);
 
   useEffect(() => {
-    if (countdown !== null && countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (countdown === 0) {
-      setIsRevealed(true);
-      setShowFireworks(true);
+    if (isRevealed) {
       drawHeart();
+    } else {
+      setHeartEmojis([]);
     }
-  }, [countdown]);
+  }, [isRevealed]);
 
   const generateNewMessage = () => {
     const newMessage = generateMessage();
     setMessage(newMessage);
     setSecret(revealSecret(newMessage));
     setIsRevealed(false);
-    setCountdown(null);
-    setIsLocked(true);
-    setLockCode('');
-    setShowFireworks(false);
     setHeartEmojis([]);
-  };
-
-  const handleReveal = () => {
-    if (isLocked) return;
-    setCountdown(3);
-  };
-
-  const handleLockInput = (e) => {
-    const newCode = e.target.value;
-    setLockCode(newCode);
-    if (newCode.toLowerCase() === 'jagi') {
-      setIsLocked(false);
-    }
   };
 
   const drawHeart = () => {
@@ -186,67 +64,60 @@ const SecretLoveMessage = () => {
   };
 
   return (
-    <Container>
-      <h1 style={{ fontSize: '2rem', color: '#ff4081', marginBottom: '1rem' }}>Secret Love Message for May</h1>
-      <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>{message}</p>
+    <div className="container">
+      <h1 className="title">Secret Love Message for May</h1>
+      <p className="message">{message}</p>
       
-      {isLocked ? (
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            Enter passcode to unlock:
-          </label>
-          <input
-            type="password"
-            value={lockCode}
-            onChange={handleLockInput}
-            style={{ padding: '0.5rem', fontSize: '1rem', width: '100%', marginBottom: '0.5rem' }}
-          />
-          <Lock style={{ color: isLocked ? '#ff4081' : '#4caf50' }} />
-        </div>
-      ) : (
-        <Button primary onClick={handleReveal} disabled={countdown !== null}>
-          {countdown !== null ? countdown : 'Reveal Secret Message'}
-        </Button>
-      )}
+      <div className="button-container">
+        <button className="button primary" onClick={() => setIsRevealed(!isRevealed)}>
+          {isRevealed ? 'Hide' : 'Reveal'} Secret Message
+        </button>
+      </div>
       
       {isRevealed && (
-        <RevealContainer>
-          <SecretMessage>May, أحبك</SecretMessage>
-          <p style={{ fontSize: '1.2rem', color: '#3f51b5' }}>({secret})</p>
-          <div style={{ fontSize: '2rem', margin: '1rem 0' }}>
-            <Heart style={{ color: '#ff4081', animation: `${pulse} 2s infinite` }} size={48} />
-            <KissingEmoji>💏</KissingEmoji>
-            <Heart style={{ color: '#ff4081', animation: `${pulse} 2s infinite` }} size={48} />
+        <div className="reveal-container">
+          <p className="secret-message animate-pulse">May, أحبك</p>
+          <p className="secret-translation">({secret})</p>
+          <div className="emoji-container">
+            <Heart className="heart-icon animate-pulse" size={48} />
+            <span className="kissing-emoji animate-zoom">💏</span>
+            <Heart className="heart-icon animate-pulse" size={48} />
           </div>
-          <HeartContainer>
+          <div className="heart-container">
             {heartEmojis.map((pos, index) => (
-              <span key={index} style={{ position: 'absolute', top: `${pos.row * 24}px`, left: `${pos.col * 24}px` }}>🧡</span>
+              <span 
+                key={index} 
+                className="heart-emoji animate-fade-in"
+                style={{ top: `${pos.row * 24}px`, left: `${pos.col * 24}px` }}
+              >
+                🧡
+              </span>
             ))}
-          </HeartContainer>
-        </RevealContainer>
+          </div>
+          <div className="firework-container">
+            {[...Array(20)].map((_, i) => (
+              <span
+                key={i}
+                className="firework"
+                style={{
+                  '--x': `${Math.random() * 100 - 50}vw`,
+                  '--initialY': '60vh',
+                  '--finalY': `${Math.random() * 50 - 60}vh`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
       )}
       
-      {showFireworks && (
-        <FireworkContainer>
-          {[...Array(20)].map((_, i) => (
-            <FireworkSpan
-              key={i}
-              style={{
-                '--x': `${Math.random() * 100 - 50}vw`,
-                '--initialY': '60vh',
-                '--finalY': `${Math.random() * 50 - 60}vh`,
-              }}
-            />
-          ))}
-        </FireworkContainer>
-      )}
+      <div className="button-container">
+        <button className="button" onClick={generateNewMessage}>
+          Generate New Message
+        </button>
+      </div>
       
-      <Button onClick={generateNewMessage} style={{ marginTop: '1rem' }}>
-        Generate New Message
-      </Button>
-      
-      <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#666' }}>Created with love by Juhyeun Lee</p>
-    </Container>
+      <p className="footer">Created with love by Juhyeun Lee</p>
+    </div>
   );
 };
 
