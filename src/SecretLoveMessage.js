@@ -56,15 +56,11 @@ const SecretLoveMessage = () => {
       '      🧡      '
     ];
 
-    heart.forEach((row, rowIndex) => {
-      [...row].forEach((char, charIndex) => {
-        if (char === '🧡') {
-          setTimeout(() => {
-            setHeartEmojis(prev => [...prev, { row: rowIndex, col: charIndex }]);
-          }, (rowIndex * 8 + charIndex) * 100);
-        }
-      });
-    });
+    setHeartEmojis(heart.map((row, rowIndex) => 
+      [...row].map((char, colIndex) => 
+        char === '🧡' ? { row: rowIndex, col: colIndex } : null
+      ).filter(Boolean)
+    ).flat());
   };
 
   const handlePasswordChange = (e) => {
