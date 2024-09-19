@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Heart } from 'lucide-react';
+import styled, { keyframes } from 'styled-components';
+import { Heart, Lock } from 'lucide-react';
 
 const words = ["Hello", "Hi", "Hey", "Greetings", "Salutations"];
 const adjectives = ["amazing", "wonderful", "fantastic", "incredible", "awesome"];
@@ -29,6 +30,7 @@ const SecretLoveMessage = () => {
     setSecret(revealSecret(newMessage));
     setIsRevealed(false);
   };
+
 
   const Firework = () => (
     <div className="absolute w-2 h-2 bg-yellow-500 rounded-full animate-firework" style={{
