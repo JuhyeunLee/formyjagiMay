@@ -26,9 +26,25 @@ const SecretLoveMessage = () => {
     generateNewMessage();
   }, []);
 
+  const generateHeartBackground = () => {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const emojiSize = 50; // Adjust this value to change the density of hearts
+    const columns = Math.ceil(screenWidth / emojiSize);
+    const rows = Math.ceil(screenHeight / emojiSize);
+    
+    const hearts = [];
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        hearts.push({ row: i, col: j });
+      }
+    }
+    return hearts;
+  };
+
   useEffect(() => {
     if (isRevealed) {
-      drawHeart();
+      setHeartEmojis(generateHeartBackground());
     } else {
       setHeartEmojis([]);
     }
@@ -42,25 +58,6 @@ const SecretLoveMessage = () => {
     setHeartEmojis([]);
     setIsUnlocked(false);
     setPassword('');
-  };
-
-  const drawHeart = () => {
-    const heart = [
-      '  🧡🧡  🧡🧡  ',
-      '🧡🧡🧡🧡🧡🧡🧡',
-      '🧡🧡🧡🧡🧡🧡🧡',
-      ' 🧡🧡🧡🧡🧡🧡 ',
-      '  🧡🧡🧡🧡🧡  ',
-      '    🧡🧡🧡    ',
-      '     🧡🧡     ',
-      '      🧡      '
-    ];
-
-    setHeartEmojis(heart.map((row, rowIndex) => 
-      [...row].map((char, colIndex) => 
-        char === '🧡' ? { row: rowIndex, col: colIndex } : null
-      ).filter(Boolean)
-    ).flat());
   };
 
   const handlePasswordChange = (e) => {
@@ -80,6 +77,23 @@ const SecretLoveMessage = () => {
 
   return (
     <div className="container">
+      {isRevealed && (
+        <div className="heart-background">
+          {heartEmojis.map((pos, index) => (
+            <span 
+              key={index} 
+              className="heart-emoji animate-fade-in"
+              style={{ 
+                top: `${pos.row * 50}px`, 
+                left: `${pos.col * 50}px`,
+                animationDelay: `${(pos.row + pos.col) * 0.1}s`
+              }}
+            >
+              🧡
+            </span>
+          ))}
+        </div>
+      )}
       <div className="card">
         <h1 className="title">Secret Love Message for May</h1>
         <p className="message">{message}</p>
@@ -109,17 +123,6 @@ const SecretLoveMessage = () => {
               <Heart className="heart-icon animate-pulse" size={48} />
               <span className="kissing-emoji animate-zoom">💏</span>
               <Heart className="heart-icon animate-pulse" size={48} />
-            </div>
-            <div className="heart-container">
-              {heartEmojis.map((pos, index) => (
-                <span 
-                  key={index} 
-                  className="heart-emoji animate-fade-in"
-                  style={{ top: `${pos.row * 24}px`, left: `${pos.col * 24}px` }}
-                >
-                  🧡
-                </span>
-              ))}
             </div>
             <div className="firework-container">
               {[...Array(20)].map((_, i) => (
