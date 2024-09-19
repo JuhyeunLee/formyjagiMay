@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { Heart } from 'lucide-react';
 
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
+`;
+
+const slideIn = keyframes`
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 `;
 
 const pulse = keyframes`
@@ -14,85 +19,97 @@ const pulse = keyframes`
 `;
 
 const bounce = keyframes`
-  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
-  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+  0%, 100% { transform: translateY(-25%); }
+  50% { transform: translateY(0); }
+`;
+
+const zoomInOut = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.5); }
 `;
 
 const Container = styled.div`
-  max-width: 28rem;
-  margin: 2.5rem auto 0;
-  padding: 1.5rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
 `;
 
-const Title = styled.h1`
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #d53f8c;
-`;
-
-const Message = styled.p`
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
-  text-align: center;
-`;
-
 const Button = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: ${props => props.primary ? '#d53f8c' : '#3b82f6'};
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
   color: white;
-  border-radius: 0.25rem;
-  transition: background-color 0.3s;
-  
+  background-color: ${props => props.primary ? '#ff4081' : '#3f51b5'};
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   &:hover {
-    background-color: ${props => props.primary ? '#b83280' : '#2563eb'};
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
 `;
 
-const SecretContainer = styled.div`
-  text-align: center;
-  position: relative;
-  animation: ${fadeIn} 0.5s ease-out;
+const RevealContainer = styled.div`
+  animation: ${fadeIn} 1s ease-out;
 `;
 
 const SecretMessage = styled.p`
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: #e53e3e;
-  margin-bottom: 0.5rem;
-`;
-
-const SecretTranslation = styled.p`
-  font-size: 1.25rem;
-  color: #e53e3e;
-`;
-
-const EmojiContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 0.5rem;
-  gap: 0.5rem;
+  font-size: 2rem;
+  color: #ff4081;
+  margin: 1rem 0;
+  animation: ${slideIn} 1s ease-out, ${pulse} 2s infinite;
 `;
 
 const KissingEmoji = styled.span`
-  font-size: 2.25rem;
-  animation: ${bounce} 1s infinite;
+  font-size: 5rem;
+  display: inline-block;
+  animation: ${zoomInOut} 4s infinite;
 `;
 
 const FireworkContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+`;
+
+const firework = keyframes`
+  0% { transform: translate(var(--x), var(--initialY)); width: 0px; opacity: 1; }
+  50% { width: 5px; opacity: 1; }
+  100% { width: 0px; opacity: 0; transform: translate(var(--x), var(--finalY)); }
+`;
+
+const FireworkSpan = styled.span`
   position: absolute;
-  width: 0.5rem;
-  height: 0.5rem;
-  background-color: #ecc94b;
-  border-radius: 9999px;
-  animation: ${props => props.animation} 0.75s ease-out forwards;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 2px solid #ff4081;
+  transform: translate(0, 0);
+  animation: ${firework} 2s ease-out infinite;
+`;
+
+const HeartContainer = styled.div`
+  font-size: 24px;
+  line-height: 1;
+  text-align: center;
+  position: relative;
+  height: 200px;
+`;
+
+const HeartEmoji = styled.span`
+  position: absolute;
+  animation: ${fadeIn} 0.5s ease-out forwards;
 `;
 
 const words = ["Hello", "Hi", "Hey", "Greetings", "Salutations"];
@@ -111,52 +128,98 @@ const SecretLoveMessage = () => {
   const [message, setMessage] = useState('');
   const [secret, setSecret] = useState('');
   const [isRevealed, setIsRevealed] = useState(false);
+  const [heartEmojis, setHeartEmojis] = useState([]);
 
   useEffect(() => {
     generateNewMessage();
   }, []);
+
+  useEffect(() => {
+    if (isRevealed) {
+      drawHeart();
+    } else {
+      setHeartEmojis([]);
+    }
+  }, [isRevealed]);
 
   const generateNewMessage = () => {
     const newMessage = generateMessage();
     setMessage(newMessage);
     setSecret(revealSecret(newMessage));
     setIsRevealed(false);
+    setHeartEmojis([]);
   };
 
-  const fireworkAnimation = keyframes`
-    0% { transform: translate(${Math.random() * 100}%, ${Math.random() * 100}%) scale(0); opacity: 1; }
-    100% { transform: translate(${Math.random() * 100}%, ${Math.random() * 100}%) scale(1); opacity: 0; }
-  `;
+  const drawHeart = () => {
+    const heart = [
+      '  🧡🧡  🧡🧡  ',
+      '🧡🧡🧡🧡🧡🧡🧡',
+      '🧡🧡🧡🧡🧡🧡🧡',
+      ' 🧡🧡🧡🧡🧡🧡 ',
+      '  🧡🧡🧡🧡🧡  ',
+      '    🧡🧡🧡    ',
+      '     🧡🧡     ',
+      '      🧡      '
+    ];
+
+    heart.forEach((row, rowIndex) => {
+      [...row].forEach((char, charIndex) => {
+        if (char === '🧡') {
+          setTimeout(() => {
+            setHeartEmojis(prev => [...prev, { row: rowIndex, col: charIndex }]);
+          }, (rowIndex * 8 + charIndex) * 100);
+        }
+      });
+    });
+  };
 
   return (
     <Container>
-      <Title>Secret Love Message for May</Title>
-      <Message>{message}</Message>
+      <h1 style={{ fontSize: '2rem', color: '#ff4081', marginBottom: '1rem', textAlign: 'center' }}>Secret Love Message for May</h1>
+      <p style={{ fontSize: '1.2rem', marginBottom: '1rem', textAlign: 'center' }}>{message}</p>
+      
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
         <Button primary onClick={() => setIsRevealed(!isRevealed)}>
           {isRevealed ? 'Hide' : 'Reveal'} Secret Message
         </Button>
       </div>
+      
       {isRevealed && (
-        <SecretContainer>
+        <RevealContainer>
           <SecretMessage>May, أحبك</SecretMessage>
-          <SecretTranslation>({secret})</SecretTranslation>
-          <EmojiContainer>
-            <Heart style={{ color: '#e53e3e', animation: `${pulse} 2s infinite` }} size={32} />
-            <KissingEmoji>💋</KissingEmoji>
-            <Heart style={{ color: '#e53e3e', animation: `${pulse} 2s infinite` }} size={32} />
-          </EmojiContainer>
-          {[...Array(20)].map((_, i) => (
-            <FireworkContainer key={i} animation={fireworkAnimation} />
-          ))}
-        </SecretContainer>
+          <p style={{ fontSize: '1.2rem', color: '#3f51b5', textAlign: 'center' }}>({secret})</p>
+          <div style={{ fontSize: '2rem', margin: '1rem 0', textAlign: 'center' }}>
+            <Heart style={{ color: '#ff4081', animation: `${pulse} 2s infinite` }} size={48} />
+            <KissingEmoji>💏</KissingEmoji>
+            <Heart style={{ color: '#ff4081', animation: `${pulse} 2s infinite` }} size={48} />
+          </div>
+          <HeartContainer>
+            {heartEmojis.map((pos, index) => (
+              <HeartEmoji key={index} style={{ top: `${pos.row * 24}px`, left: `${pos.col * 24}px` }}>🧡</HeartEmoji>
+            ))}
+          </HeartContainer>
+          <FireworkContainer>
+            {[...Array(20)].map((_, i) => (
+              <FireworkSpan
+                key={i}
+                style={{
+                  '--x': `${Math.random() * 100 - 50}vw`,
+                  '--initialY': '60vh',
+                  '--finalY': `${Math.random() * 50 - 60}vh`,
+                }}
+              />
+            ))}
+          </FireworkContainer>
+        </RevealContainer>
       )}
+      
       <div style={{ textAlign: 'center', marginTop: '1rem' }}>
         <Button onClick={generateNewMessage}>
           Generate New Message
         </Button>
       </div>
-      <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#4b5563' }}>Created with love by Juhyeun Lee</p>
+      
+      <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: '#666' }}>Created with love by Juhyeun Lee</p>
     </Container>
   );
 };
