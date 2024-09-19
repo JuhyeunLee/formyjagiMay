@@ -46,14 +46,18 @@ const SecretLoveMessage = () => {
 
   const drawHeart = () => {
     const heart = [
-      '  🧡🧡  🧡🧡  ',
-      '🧡🧡🧡🧡🧡🧡🧡',
-      '🧡🧡🧡🧡🧡🧡🧡',
-      ' 🧡🧡🧡🧡🧡🧡 ',
-      '  🧡🧡🧡🧡🧡  ',
-      '    🧡🧡🧡    ',
-      '     🧡🧡     ',
-      '      🧡      '
+      '    🧡🧡🧡    🧡🧡🧡    ',
+      '  🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡  ',
+      '🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡',
+      '🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡',
+      '🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡',
+      ' 🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡 ',
+      '  🧡🧡🧡🧡🧡🧡🧡🧡🧡🧡  ',
+      '    🧡🧡🧡🧡🧡🧡🧡🧡    ',
+      '      🧡🧡🧡🧡🧡🧡      ',
+      '        🧡🧡🧡🧡        ',
+      '          🧡🧡          ',
+      '           🧡           '
     ];
 
     setHeartEmojis(heart.map((row, rowIndex) => 
@@ -80,6 +84,21 @@ const SecretLoveMessage = () => {
 
   return (
     <div className="container">
+      <div className="heart-background">
+        {heartEmojis.map((pos, index) => (
+          <span 
+            key={index} 
+            className="heart-emoji animate-fade-in"
+            style={{ 
+              top: `${pos.row * 4}%`, 
+              left: `${pos.col * 4}%`,
+              animationDelay: `${index * 0.05}s`
+            }}
+          >
+            🧡
+          </span>
+        ))}
+      </div>
       <div className="card">
         <h1 className="title">Secret Love Message for May</h1>
         <p className="message">{message}</p>
@@ -109,17 +128,6 @@ const SecretLoveMessage = () => {
               <Heart className="heart-icon animate-pulse" size={48} />
               <span className="kissing-emoji animate-zoom">💏</span>
               <Heart className="heart-icon animate-pulse" size={48} />
-            </div>
-            <div className="heart-container">
-              {heartEmojis.map((pos, index) => (
-                <span 
-                  key={index} 
-                  className="heart-emoji animate-fade-in"
-                  style={{ top: `${pos.row * 24}px`, left: `${pos.col * 24}px` }}
-                >
-                  🧡
-                </span>
-              ))}
             </div>
             <div className="firework-container">
               {[...Array(20)].map((_, i) => (
