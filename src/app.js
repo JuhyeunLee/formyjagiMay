@@ -1,6 +1,5 @@
 import React from 'react';
 import SecretLoveMessage from './SecretLoveMessage';
-
 function App() {
   return (
     <div className="App">
