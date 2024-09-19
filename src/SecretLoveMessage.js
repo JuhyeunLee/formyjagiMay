@@ -29,7 +29,7 @@ const SecretLoveMessage = () => {
   const generateHeartBackground = () => {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const emojiSize = 50; // Adjust this value to change the density of hearts
+    const emojiSize = 100; // Increased to make distance 2 times larger
     const columns = Math.ceil(screenWidth / emojiSize);
     const rows = Math.ceil(screenHeight / emojiSize);
     
@@ -84,9 +84,9 @@ const SecretLoveMessage = () => {
               key={index} 
               className="heart-emoji animate-fade-in"
               style={{ 
-                top: `${pos.row * 50}px`, 
-                left: `${pos.col * 50}px`,
-                animationDelay: `${(pos.row + pos.col) * 0.1}s`
+                top: `${pos.row * 100}px`,
+                left: `${pos.col * 100}px`,
+                animationDelay: `${(pos.col + pos.row) * 0.2}s` // 2 times slower
               }}
             >
               🧡
