@@ -1,5 +1,104 @@
 import React, { useState, useEffect } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { Heart, Lock } from 'lucide-react';
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const slideIn = keyframes`
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+`;
+
+const zoomInOut = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(20); }
+  100% { transform: scale(1); }
+`;
+
+const firework = keyframes`
+  0% { transform: translate(var(--x), var(--initialY)); width: 0px; opacity: 1; }
+  50% { width: 5px; opacity: 1; }
+  100% { width: 0px; opacity: 0; transform: translate(var(--x), var(--finalY)); }
+`;
+
+const Container = styled.div`
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+`;
+
+const Button = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: ${props => props.primary ? '#ff4081' : '#3f51b5'};
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const RevealContainer = styled.div`
+  animation: ${fadeIn} 1s ease-out;
+`;
+
+const SecretMessage = styled.p`
+  font-size: 2rem;
+  color: #ff4081;
+  margin: 1rem 0;
+  animation: ${slideIn} 1s ease-out, ${pulse} 2s infinite;
+`;
+
+const KissingEmoji = styled.span`
+  font-size: 5rem;
+  animation: ${zoomInOut} 4s infinite;
+`;
+
+const FireworkContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+`;
+
+const FireworkSpan = styled.span`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 2px solid #ff4081;
+  transform: translate(0, 0);
+  animation: ${firework} 1.5s ease-out infinite;
+`;
+
+const HeartContainer = styled.div`
+  font-size: 24px;
+  line-height: 1;
+  text-align: center;
+`;
 
 const words = ["Hello", "Hi", "Hey", "Greetings", "Salutations"];
 const adjectives = ["amazing", "wonderful", "fantastic", "incredible", "awesome"];
@@ -20,7 +119,8 @@ const SecretLoveMessage = () => {
   const [countdown, setCountdown] = useState(null);
   const [lockCode, setLockCode] = useState('');
   const [isLocked, setIsLocked] = useState(true);
-  const [showKiss, setShowKiss] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
+  const [heartEmojis, setHeartEmojis] = useState([]);
 
   useEffect(() => {
     generateNewMessage();
@@ -32,7 +132,8 @@ const SecretLoveMessage = () => {
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
       setIsRevealed(true);
-      setShowKiss(true);
+      setShowFireworks(true);
+      drawHeart();
     }
   }, [countdown]);
 
@@ -41,7 +142,11 @@ const SecretLoveMessage = () => {
     setMessage(newMessage);
     setSecret(revealSecret(newMessage));
     setIsRevealed(false);
-    setShowKiss(false);
+    setCountdown(null);
+    setIsLocked(true);
+    setLockCode('');
+    setShowFireworks(false);
+    setHeartEmojis([]);
   };
 
   const handleReveal = () => {
@@ -52,82 +157,96 @@ const SecretLoveMessage = () => {
   const handleLockInput = (e) => {
     const newCode = e.target.value;
     setLockCode(newCode);
-    if (newCode === 'jagi') {
+    if (newCode.toLowerCase() === 'jagi') {
       setIsLocked(false);
     }
   };
 
-  const Firework = () => (
-    <div className="absolute w-2 h-2 bg-yellow-500 rounded-full animate-firework" style={{
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      animationDuration: `${0.5 + Math.random() * 0.5}s`,
-      animationDelay: `${Math.random() * 0.2}s`
-    }} />
-  );
+  const drawHeart = () => {
+    const heart = [
+      '  🧡🧡  🧡🧡  ',
+      '🧡🧡🧡🧡🧡🧡🧡',
+      '🧡🧡🧡🧡🧡🧡🧡',
+      ' 🧡🧡🧡🧡🧡🧡 ',
+      '  🧡🧡🧡🧡🧡  ',
+      '    🧡🧡🧡    ',
+      '     🧡🧡     ',
+      '      🧡      '
+    ];
+
+    heart.forEach((row, rowIndex) => {
+      [...row].forEach((char, charIndex) => {
+        if (char === '🧡') {
+          setTimeout(() => {
+            setHeartEmojis(prev => [...prev, { row: rowIndex, col: charIndex }]);
+          }, (rowIndex * 8 + charIndex) * 100);
+        }
+      });
+    });
+  };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl relative overflow-hidden">
-      <h1 className="text-2xl font-bold mb-4 text-center text-pink-600">Secret Love Message for May</h1>
-      <p className="text-lg mb-4 text-center">{message}</p>
+    <Container>
+      <h1 style={{ fontSize: '2rem', color: '#ff4081', marginBottom: '1rem' }}>Secret Love Message for May</h1>
+      <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>{message}</p>
       
       {isLocked ? (
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="lockCode">
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
             Enter passcode to unlock:
           </label>
-          <div className="flex items-center">
-            <input
-              type="password"
-              id="lockCode"
-              value={lockCode}
-              onChange={handleLockInput}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-            <Lock className={`ml-2 ${isLocked ? 'text-red-500' : 'text-green-500'}`} />
-          </div>
+          <input
+            type="password"
+            value={lockCode}
+            onChange={handleLockInput}
+            style={{ padding: '0.5rem', fontSize: '1rem', width: '100%', marginBottom: '0.5rem' }}
+          />
+          <Lock style={{ color: isLocked ? '#ff4081' : '#4caf50' }} />
         </div>
       ) : (
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={handleReveal}
-            className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors"
-            disabled={countdown !== null}
-          >
-            {countdown !== null ? countdown : 'Reveal Secret Message'}
-          </button>
-        </div>
+        <Button primary onClick={handleReveal} disabled={countdown !== null}>
+          {countdown !== null ? countdown : 'Reveal Secret Message'}
+        </Button>
       )}
       
       {isRevealed && (
-        <div className="text-center relative">
-          <p className="text-3xl font-semibold text-red-500 mb-2">May, أحبك</p>
-          <p className="text-xl text-red-500">({secret})</p>
-          <div className="flex justify-center items-center mt-2 space-x-2">
-            <Heart className="text-red-500 animate-pulse" size={32} />
-            <span className="text-4xl animate-bounce">💋</span>
-            <Heart className="text-red-500 animate-pulse" size={32} />
+        <RevealContainer>
+          <SecretMessage>May, أحبك</SecretMessage>
+          <p style={{ fontSize: '1.2rem', color: '#3f51b5' }}>({secret})</p>
+          <div style={{ fontSize: '2rem', margin: '1rem 0' }}>
+            <Heart style={{ color: '#ff4081', animation: `${pulse} 2s infinite` }} size={48} />
+            <KissingEmoji>💏</KissingEmoji>
+            <Heart style={{ color: '#ff4081', animation: `${pulse} 2s infinite` }} size={48} />
           </div>
-          {[...Array(50)].map((_, i) => <Firework key={i} />)}
-        </div>
+          <HeartContainer>
+            {heartEmojis.map((pos, index) => (
+              <span key={index} style={{ position: 'absolute', top: `${pos.row * 24}px`, left: `${pos.col * 24}px` }}>🧡</span>
+            ))}
+          </HeartContainer>
+        </RevealContainer>
       )}
       
-      {showKiss && (
-        <div className="fixed inset-0 bg-pink-100 bg-opacity-75 flex items-center justify-center z-50">
-          <span className="text-9xl animate-bounce">💏</span>
-        </div>
+      {showFireworks && (
+        <FireworkContainer>
+          {[...Array(20)].map((_, i) => (
+            <FireworkSpan
+              key={i}
+              style={{
+                '--x': `${Math.random() * 100 - 50}vw`,
+                '--initialY': '60vh',
+                '--finalY': `${Math.random() * 50 - 60}vh`,
+              }}
+            />
+          ))}
+        </FireworkContainer>
       )}
       
-      <div className="text-center mt-4">
-        <button
-          onClick={generateNewMessage}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        >
-          Generate New Message
-        </button>
-      </div>
-      <p className="text-center mt-4 text-sm text-gray-500">Created with love by Juhyeun Lee</p>
-    </div>
+      <Button onClick={generateNewMessage} style={{ marginTop: '1rem' }}>
+        Generate New Message
+      </Button>
+      
+      <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#666' }}>Created with love by Juhyeun Lee</p>
+    </Container>
   );
 };
 
